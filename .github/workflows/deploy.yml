@@ -1,0 +1,20 @@
+name: Desplegar chat en Render
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Solicitar despliegue
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl --fail --silent --show-error --output /dev/null \
+            --get --data-urlencode "ref=${GITHUB_SHA}" \
+            "$RENDER_DEPLOY_HOOK_URL"
