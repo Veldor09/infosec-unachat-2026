@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log*
+.env
+.env.*
+.git
+.github
+.cursor
+.opencode
+openspec
+agents
+test
+integration
+e2e
+artillery
+test-results
+playwright-report
+coverage

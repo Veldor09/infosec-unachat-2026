@@ -1,0 +1,17 @@
+services:
+  una-chat:
+    build: .
+    image: una-chat:lab7
+    container_name: una-chat
+    ports:
+      - "3000:3000"
+    # credenciales de Grafana Cloud y Sentry desde .env (fuera del repositorio)
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=local
+      CHAT_EJECUCION: docker
+    # init reenvia SIGTERM a node para que envie la telemetria pendiente al detenerse
+    init: true
+    restart: unless-stopped

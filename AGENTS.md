@@ -18,3 +18,4 @@ No agregues notas de una sola sesión, secretos ni consejos genéricos. Si una r
 - Vas a correr o cambiar pruebas, `server.js` o selectores de la página: [agents/pruebas.md](agents/pruebas.md)
 - Vas a cambiar dependencias, `package.json`, el CDN de Socket.IO o Snyk: [agents/dependencias.md](agents/dependencias.md)
 - Vas a cambiar `index.html`, el spec de la página o un cambio de OpenSpec: [agents/interfaz-y-specs.md](agents/interfaz-y-specs.md)
+- Vas a tocar `instrument.js`, `libs/monitoreo.js`, Sentry, Grafana, Docker o Artillery: [agents/monitoreo.md](agents/monitoreo.md)

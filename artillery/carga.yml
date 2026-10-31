@@ -1,0 +1,31 @@
+# Prueba de carga local de UNA Chat en Docker (laboratorio 7, parte 3.2)
+# Destino: el contenedor local publicado en el puerto 3000. No usar Render ni otra URL en la nube.
+#
+#   artillery run artillery/carga.yml --output artillery/reporte.json
+#
+# 5 usuarios virtuales nuevos por segundo durante 60 s, cada uno con UNA sola solicitud
+# (sin bucles ni pausas) => 5 solicitudes/s y 300 solicitudes en total.
+config:
+  target: "http://localhost:3000"
+  phases:
+    - name: "5 solicitudes por segundo durante 60 s"
+      duration: 60
+      arrivalRate: 5
+  http:
+    timeout: 10
+  plugins:
+    metrics-by-endpoint: {}
+    expect: {}
+
+scenarios:
+  - name: "Enviar un mensaje al chat"
+    flow:
+      # endpoint que procesa los mensajes: POST /api/mensajes con JSON, sin autenticacion
+      - post:
+          url: "/api/mensajes"
+          json:
+            nombre: "Artillery"
+            mensaje: "Mensaje de carga {{ $randomNumber(1, 100000) }}"
+            color: "#1D3530"
+          expect:
+            - statusCode: 201
