@@ -102,3 +102,34 @@ Oculte siempre el token de Grafana, el DSN de Sentry y cualquier clave.
 16. Comando ejecutado y reporte: solicitudes, tasa observada, p50, p95, códigos y errores; horas de inicio y fin.
 17. Logs y gráficos de Grafana Cloud en el mismo intervalo: tasa de solicitudes, latencia y errores.
 18. Conclusión: 300 previstas contra el resultado real, diferencias y efecto en latencia y errores.
+
+## Resultados obtenidos (30/10/2026, hora de Costa Rica)
+
+### Parte 1
+- Sentry recibió `FalloControlado: Fallo controlado de prueba (comando /fallo)` desde Render: `environment=render`, `release=9f2ecbc`, etiqueta `canal=socket`, stack trace en `server.js:23`. Luego se eliminó `CHAT_FALLO_CONTROLADO` en Render y `/fallo` volvió a publicarse como texto.
+- Cronitor: monitor `UNA Chat (Render) - /health`, GET cada 5 min, timeout 30 s, aserción `response.code = 200`, tolerancia de 1 fallo, alertas a la lista Default (correo del estudiante). Estado Healthy, 100 % de disponibilidad, ~486 ms de respuesta.
+
+### Parte 2 (chat local con `npm start`, 18:56:14 – 18:56:42)
+- 4 mensajes correctos y `/fallo` por Socket.IO; 5 correctos, 1 inválido y 2 `/fallo` por HTTP.
+- Loki: 23 líneas (18 info, 5 error) de `una-chat` con `deployment_environment=local`.
+- Mimir: `chat_mensajes_total` http 5 ok / 2 error, socket 4 ok / 1 error; HTTP 201 = 5, 400 = 1, 500 = 2.
+- Tempo: 16 trazas; la de `/fallo` termina en 500 con el span `chat.procesar_mensaje` en estado error.
+
+### Parte 3.1 (Docker, 19:07:52 – 19:08:16)
+- Contenedor `una-chat` (imagen `una-chat:lab7`, puerto 3000) en estado healthy; 6 mensajes (texto, imagen, YouTube y script escapado).
+- Loki con `app_ejecucion="docker"`: 14 líneas. Traza `3c7c273fd4eb5775142c6ff97e35677d` con spans `receive /` → `chat.procesar_mensaje` → `send /`; su log comparte el mismo `trace_id`; `process.command=/app/server.js` confirma que corre en el contenedor.
+
+### Parte 3.2 (Artillery contra Docker, 19:18:37 – 19:19:36)
+Comando: `npx artillery@2.0.34 run artillery/carga.yml --output artillery/reporte.json` (reporte guardado en `artillery/reporte.json`).
+
+| Métrica | Valor |
+|---|---|
+| Solicitudes previstas / realizadas | 300 / 300 |
+| Tasa observada | 5 solicitudes/s |
+| Códigos | 201 × 300 |
+| Errores / tiempos de espera | 0 / 0 |
+| Latencia (Artillery) | min 4 ms · p50 10.1 ms · p95 16 ms · p99 22.9 ms · max 46 ms |
+| Latencia en el servidor (Grafana) | p50 ≈ 3.4 ms · p95 ≈ 9 ms |
+| Logs en Loki (ruta `/api/mensajes`) | 300 líneas, 5 por segundo, todas info |
+
+**Conclusión.** Se enviaron las 300 solicitudes previstas (5/s durante 60 s) y las 300 respondieron 201: no hubo diferencia entre lo previsto y lo real, ni errores ni tiempos de espera. La latencia se mantuvo estable durante toda la carga (p95 de 16 ms medido por Artillery y de ~9 ms en el servidor). La diferencia entre ambas mediciones corresponde al tiempo de red y del cliente, que Artillery incluye y el servidor no. A 5 solicitudes por segundo el chat en Docker no muestra degradación. La primera ventana del reporte marca 10 solicitudes/s porque Artillery agrupa por períodos de 10 s y la prueba empezó a mitad de uno; el total y el promedio son exactamente 5/s.
