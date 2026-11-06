@@ -44,7 +44,15 @@
       }
 
       header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.25rem 1.5rem;
         padding: 1.5rem 1.5rem 0.75rem;
+      }
+
+      .brand {
+        min-width: 0;
       }
 
       h1 {
@@ -54,9 +62,10 @@
         font-weight: 600;
         letter-spacing: -0.03em;
         line-height: 1.05;
+        text-wrap: balance;
       }
 
-      header p {
+      .brand p {
         margin: 0.7rem 0 0;
         max-width: 42rem;
         color: var(--ink-soft);
@@ -161,6 +170,152 @@
 
       button:hover { background: #ffd56a; }
 
+      button:disabled {
+        cursor: progress;
+      }
+
+      #login-gate {
+        width: min(100%, 26rem);
+        padding: 1.75rem 1.6rem 1.45rem;
+        background: var(--paper-raised);
+        border-radius: 0.5rem;
+        box-shadow: 0 16px 36px rgba(36, 28, 20, 0.14);
+      }
+
+      #login-gate h2 {
+        margin: 0;
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: clamp(1.7rem, 3vw, 2.15rem);
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        text-wrap: balance;
+      }
+
+      #login-lead {
+        margin: 0.7rem 0 0;
+        max-width: 34ch;
+        color: var(--ink-soft);
+      }
+
+      #login-error {
+        margin: 1rem 0 0;
+        padding: 0.7rem 0.8rem;
+        border-radius: 0.35rem;
+        background: #f6ddd2;
+        color: #7a2a10;
+      }
+
+      #login-button {
+        width: 100%;
+        height: 2.9rem;
+        margin-top: 1.25rem;
+      }
+
+      #login-button:disabled {
+        background: #e3c56a;
+        color: var(--ink);
+      }
+
+      body:has(#login-gate:not([hidden])) main {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 2.5rem;
+      }
+
+      body:has(#login-gate:not([hidden])) #empty-state,
+      body:has(#login-gate:not([hidden])) #messages {
+        display: none;
+      }
+
+      #session-bar {
+        display: flex;
+        flex: 0 1 auto;
+        gap: 0.85rem;
+        align-items: center;
+        max-width: 100%;
+        margin: 0;
+        padding: 0.4rem 0.4rem 0.4rem 0.55rem;
+        background: var(--paper-raised);
+        border-radius: 0.45rem;
+        box-shadow: 0 8px 18px rgba(36, 28, 20, 0.1);
+      }
+
+      #session-identity {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        min-width: 0;
+      }
+
+      #session-details {
+        display: grid;
+        min-width: 0;
+        line-height: 1.2;
+      }
+
+      #session-photo {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        object-fit: cover;
+        flex: 0 0 auto;
+        background: var(--line);
+      }
+
+      #session-name {
+        margin: 0;
+        color: var(--ink);
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+
+      #session-email {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 0.85rem;
+        font-weight: 400;
+        overflow-wrap: anywhere;
+      }
+
+      #logout-button {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 0.4rem;
+        height: 2.35rem;
+        padding: 0 0.85rem;
+        border: 1px solid var(--clay);
+        background: transparent;
+        color: var(--clay);
+      }
+
+      #logout-button svg {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      #logout-button:hover {
+        background: var(--clay);
+        color: var(--paper-raised);
+      }
+
+      #logout-button:disabled {
+        background: transparent;
+        color: #8d5a48;
+        border-color: #8d5a48;
+      }
+
+      form[hidden],
+      #login-gate[hidden],
+      #session-bar[hidden],
+      #login-error[hidden],
+      #session-photo[hidden],
+      #session-email[hidden] {
+        display: none !important;
+      }
+
       :focus-visible {
         outline: 3px solid var(--clay);
         outline-offset: 2px;
@@ -174,6 +329,16 @@
       @media (max-width: 720px) {
         header, main, form { padding-left: 1rem; padding-right: 1rem; }
 
+        header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        #session-bar {
+          justify-content: space-between;
+          width: 100%;
+        }
+
         form {
           grid-template-columns: 1fr auto;
         }
@@ -186,14 +351,37 @@
   </head>
   <body>
     <header>
-      <h1>Chat Socket.IO UNA</h1>
-      <p>Messages are shared live with everyone in this room.</p>
+      <div class="brand">
+        <h1>Chat Socket.IO UNA</h1>
+        <p>Messages are shared live with everyone in this room.</p>
+      </div>
+      <div id="session-bar" hidden>
+        <div id="session-identity">
+          <img id="session-photo" alt="" width="40" height="40" hidden>
+          <div id="session-details">
+            <span id="session-name"></span>
+            <span id="session-email" hidden></span>
+          </div>
+        </div>
+        <button type="button" id="logout-button">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M6.5 3.25H3.75v9.5H6.5M6.75 8h6M10.5 5.25 13.25 8 10.5 10.75"/>
+          </svg>
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
     </header>
     <main id="transcript">
+      <section id="login-gate" hidden>
+        <h2>Entra a la sala</h2>
+        <p id="login-lead">La sala pide una sesión. El acceso continúa en el siguiente paso.</p>
+        <p id="login-error" hidden role="alert"></p>
+        <button type="button" id="login-button">Iniciar sesión</button>
+      </section>
       <p id="empty-state"><strong>The room is empty.</strong> Send the first message.</p>
       <ul id="messages"></ul>
     </main>
-    <form action="">
+    <form id="composer" action="">
       <div class="field field-name">
         <label for="nombre">Nombre</label>
         <input id="nombre" autocomplete="off" placeholder="Username"/>
@@ -204,6 +392,7 @@
       </div>
       <button type="submit">Send</button>
     </form>
+    <script src="/profile.js"></script>
     <script src="https://cdn.socket.io/4.8.4/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
@@ -220,10 +409,10 @@
         return color;
      }
 
-      $(function () {
-        var socket = io();
+    function startChat(token) {
+        var socket = token ? io({ auth: { token: token } }) : io();
 
-        $('form').submit(function(){
+        $('form').off('submit').on('submit', function () {
             var nombreTxt = $('#nombre').val() || "Anomimo";
             var mensajeTxt = $('#m').val();
 
@@ -237,7 +426,11 @@
             return false;
         });
 
-        socket.on('Evento-Mensaje-Server', function(msg){
+        socket.on('connect_error', function () {
+            $('#login-error').prop('hidden', false).text('No se pudo conectar al chat. Inicia sesión de nuevo.');
+        });
+
+        socket.on('Evento-Mensaje-Server', function (msg) {
             var msgJson = JSON.parse(msg);
             var mensajeDisplay = "<b style='color:"+ msgJson.color +"'>" + msgJson.nombre + "</b>: " + msgJson.mensaje;
             $('#empty-state').attr('hidden', true);
@@ -245,8 +438,136 @@
             var transcript = document.getElementById('transcript');
             transcript.scrollTop = transcript.scrollHeight;
         });
+    }
 
-      });
+    function clearSessionIdentity() {
+        $('#session-name').text('');
+        $('#session-email').prop('hidden', true).text('');
+        var photo = document.getElementById('session-photo');
+        photo.hidden = true;
+        photo.removeAttribute('src');
+        photo.alt = '';
+    }
+
+    function showSessionIdentity(user) {
+        var name = user && typeof user.name === 'string' ? user.name.trim() : '';
+        var email = user && typeof user.email === 'string' ? user.email.trim() : '';
+        var label = name || email || 'Usuario';
+        $('#session-name').text(label);
+        if (name && email) {
+            $('#session-email').prop('hidden', false).text(email);
+        } else {
+            $('#session-email').prop('hidden', true).text('');
+        }
+
+        var picture = window.chatProfile
+            ? window.chatProfile.googleProfilePicture(user && user.picture)
+            : '';
+        var photo = document.getElementById('session-photo');
+        photo.onload = null;
+        photo.onerror = null;
+        if (!picture) {
+            photo.hidden = true;
+            photo.removeAttribute('src');
+            photo.alt = '';
+            return label;
+        }
+
+        photo.alt = 'Foto de ' + label;
+        photo.hidden = true;
+        photo.onload = function () {
+            photo.hidden = false;
+        };
+        photo.onerror = function () {
+            photo.hidden = true;
+            photo.removeAttribute('src');
+        };
+        photo.src = picture;
+        return label;
+    }
+
+    function showLogin(message) {
+        $('#composer').prop('hidden', true);
+        $('#session-bar').prop('hidden', true);
+        clearSessionIdentity();
+        $('#login-button').prop('disabled', false).text('Iniciar sesión');
+        $('#login-gate').prop('hidden', false);
+        if (message) {
+            $('#login-error').prop('hidden', false).text(message);
+        } else {
+            $('#login-error').prop('hidden', true).text('');
+        }
+    }
+
+    function loginErrorFromParams(params) {
+        var code = params.get('error') || '';
+        if (!code) return '';
+        if (code === 'access_denied') {
+            return 'Cancelaste el inicio de sesión. Puedes intentarlo de nuevo.';
+        }
+        if (code === 'state') {
+            return 'La sesión de entrada venció. Inténtalo de nuevo.';
+        }
+        return 'No se pudo iniciar sesión. Inténtalo de nuevo.';
+    }
+
+    function bindLogin() {
+        $('#login-button').off('click').on('click', function () {
+            this.disabled = true;
+            this.textContent = 'Entrando…';
+            window.location.assign('/auth/login');
+        });
+    }
+
+    function showSignedIn(user) {
+        var label = showSessionIdentity(user);
+        $('#nombre').val(label).prop('readonly', true);
+        $('#session-bar').prop('hidden', false);
+        $('#login-gate').prop('hidden', true);
+        $('#logout-button').on('click', function () {
+            var button = this;
+            var text = button.querySelector('span');
+            button.disabled = true;
+            if (text) text.textContent = 'Cerrando sesión…';
+            window.location.assign('/auth/logout');
+        });
+        startChat();
+    }
+
+    $(function () {
+        fetch('/auth/config').then(function (response) {
+            return response.json();
+        }).then(function (config) {
+            if (!config || !config.enabled) {
+                startChat();
+                return;
+            }
+
+            var params = new URLSearchParams(window.location.search);
+            var redirectError = loginErrorFromParams(params);
+            if (params.has('error') || params.has('code') || params.has('state')) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            return fetch('/sala', { headers: { accept: 'application/json' } }).then(function (response) {
+                if (response.status === 401) {
+                    showLogin(redirectError);
+                    bindLogin();
+                    return;
+                }
+                if (!response.ok) {
+                    showLogin('No se pudo comprobar la sesión. Recarga la página.');
+                    bindLogin();
+                    return;
+                }
+                return response.json().then(function (user) {
+                    showSignedIn(user);
+                });
+            });
+        }).catch(function () {
+            showLogin('No se pudo comprobar la sesión. Recarga la página.');
+        });
+    });
     </script>
   </body>
 </html>

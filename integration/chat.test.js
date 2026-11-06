@@ -59,6 +59,23 @@ describe('Chat server', function () {
     server.close(done);
   });
 
+  describe('when auth is not configured', function () {
+    it('should report that login is disabled', async function () {
+      var response = await fetch('http://127.0.0.1:' + port + '/auth/config');
+      var body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(body).toEqual({ enabled: false });
+      expect(body.clientSecret).toBeUndefined();
+      expect(JSON.stringify(body)).not.toContain('secret');
+
+      var sala = await fetch('http://127.0.0.1:' + port + '/sala');
+      var salaBody = await sala.json();
+      expect(sala.status).toBe(200);
+      expect(salaBody).toEqual({ enabled: false });
+    });
+  });
+
   describe('when a visitor requests the home page', function () {
     it('should return the chat page', async function () {
       var response = await fetch('http://127.0.0.1:' + port + '/');
@@ -67,6 +84,9 @@ describe('Chat server', function () {
       expect(response.status).toBe(200);
       expect(html).toContain('Chat Socket.IO UNA');
       expect(html).toContain('id="messages"');
+      expect(html).toContain('id="session-photo"');
+      expect(html).toContain('id="session-email"');
+      expect(html).toContain('src="/profile.js"');
     });
   });
 

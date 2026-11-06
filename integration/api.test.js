@@ -151,4 +151,29 @@ describe('Chat HTTP API', function () {
       expect(body.mensaje).toBe('/fallo');
     });
   });
+
+  describe('when the Auth0 login is enabled', function () {
+    afterEach(function () {
+      delete process.env.AUTH0_DOMAIN;
+      delete process.env.AUTH0_CLIENT_ID;
+    });
+
+    it('should close the HTTP message endpoint, which does not carry a session', async function () {
+      process.env.AUTH0_DOMAIN = 'example.us.auth0.com';
+      process.env.AUTH0_CLIENT_ID = 'client-id-de-prueba';
+
+      var response = await postMessage({ nombre: 'Ana', mensaje: 'hola' });
+
+      expect(response.status).toBe(403);
+    });
+
+    it('should keep the health route public', async function () {
+      process.env.AUTH0_DOMAIN = 'example.us.auth0.com';
+      process.env.AUTH0_CLIENT_ID = 'client-id-de-prueba';
+
+      var response = await fetch(base + '/health');
+
+      expect(response.status).toBe(200);
+    });
+  });
 });

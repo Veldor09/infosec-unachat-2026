@@ -18,3 +18,5 @@ Señales: span `chat.procesar_mensaje` (atributos `chat.canal`, `chat.tipo`, `ch
 Para probar la exportación sin credenciales, apunta `OTEL_EXPORTER_OTLP_ENDPOINT` a un receptor HTTP local y revisa que lleguen `POST /otlp/v1/traces`, `/v1/metrics` y `/v1/logs`.
 
 `POST /api/mensajes` existe para Artillery: aplica la misma validación que el evento y reenvía por `Evento-Mensaje-Server`. `artillery/carga.yml` apunta a `http://localhost:3000` (el contenedor), nunca a Render.
+
+Con `AUTH0_DOMAIN` y `AUTH0_CLIENT_ID` definidos, `POST /api/mensajes` responde 403: ese camino no lleva la sesión de Auth0 y dejaría publicar sin iniciar sesión. `GET /health` sigue público. Artillery (`artillery/carga.yml`) se corre con el login apagado, es decir, con un `.env` sin esas dos variables.

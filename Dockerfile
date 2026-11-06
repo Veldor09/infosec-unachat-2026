@@ -9,6 +9,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY index.html server.js instrument.js ./
 COPY libs ./libs
+COPY server ./server
 
 ENV NODE_ENV=production \
     PORT=3000
